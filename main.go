@@ -1,12 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
+
+	"github.com/nicholasflee/nick-b/article"
 )
 
 func main() {
-	fmt.Println("")
+	a := article.Article{
+		ID: "rew", Title: "title", Subtitle: "subtitle",
+		CreateDate: "date", Categories: []string{"12"},
+		Content: "", PreviewContent: "",
+	}
 
-	// article := article.Article{Title: "title", Subtitle: "subtitle", CreateDate: "date", Categories: []string{""}}
-	// fmt.Println(article)
+	err := article.InsertArticle(a)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
