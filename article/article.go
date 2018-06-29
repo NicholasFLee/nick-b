@@ -1,6 +1,7 @@
 package article
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -9,12 +10,14 @@ import (
 
 // Article struct will saved into 3 tables
 type Article struct {
-	ArticleID      string   `json:"aticleID" form:"id" binding:"required"`
-	Title          string   `json:"title" form:"title" binding:"required"`
-	CreateDate     string   `json:"createDate" form:"createDate"`
-	Categories     []string `json:"categories" form:"categories" binding:"required"`
-	Content        string   `json:"content" form:"content" binding:"required"`
-	PreviewContent string   `json:"previewContent" form:"previewContent" binding:"required"`
+	ArticleID  string   `json:"aticleID" form:"id" binding:"required"`
+	Title      string   `json:"title" form:"title" binding:"required"`
+	CreateDate string   `json:"createDate" form:"createDate"`
+	Categories []string `json:"categories" form:"categories" binding:"required"`
+	// in article
+	Content string `json:"content" form:"content" binding:"required"`
+	// in preview articles
+	PreviewContent string `json:"previewContent" form:"previewContent" binding:"required"`
 }
 
 type categories struct {
@@ -31,9 +34,10 @@ func init() {
 }
 
 // GetArticle by id
-func GetArticle(id string) (err error) {
-	// ...
-	return nil
+func GetArticle(id string) (atc Article, err error) {
+	selectAtc := fmt.Sprintf("SELECT * FROM articles WHERE ArticleID=%s", id)
+	err = db.DB.QueryRow(selectAtc).Scan(&atc)
+	return
 }
 
 // GetArticlePreviews from and to
@@ -50,6 +54,24 @@ func GetArticlePreviews(page, perPage int) (atcs []Article, err error) {
 		if err != nil {
 			return
 		}
+		// now add categories
+		selectCtg := fmt.Sprintf("SELECT * FROM categories WHERE ArticleID=%s", a.ArticleID)
+		var ctgRows *sql.Rows
+		ctgRows, err = db.DB.Query(selectCtg)
+		if err != nil {
+			return
+		}
+		ctgs := []string{}
+		if ctgRows.Next() {
+			var s string
+			err = ctgRows.Scan(&s)
+			if err != nil {
+				return
+			}
+			ctgs = append(ctgs, s)
+		}
+		a.Categories = ctgs
+		//
 		atcs = append(atcs, a)
 	}
 	return
