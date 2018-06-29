@@ -1,7 +1,7 @@
 package article
 
 import (
-	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/nicholasflee/nick-b/db"
@@ -9,82 +9,86 @@ import (
 
 // Article struct will saved into 3 tables
 type Article struct {
-	ID             string   `json:"id"`
-	Title          string   `json:"title"`
-	Subtitle       string   `json:"subtitle"`
-	CreateDate     string   `json:"createDate"`
-	Categories     []string `json:"categories"`
-	Content        string   `json:"content"`
-	PreviewContent string   `json:"previewContent"`
-}
-
-type category struct {
-	ID   string
-	Name string
+	ArticleID      string   `json:"aticleID" form:"id" binding:"required"`
+	Title          string   `json:"title" form:"title" binding:"required"`
+	CreateDate     string   `json:"createDate" form:"createDate"`
+	Categories     []string `json:"categories" form:"categories" binding:"required"`
+	Content        string   `json:"content" form:"content" binding:"required"`
+	PreviewContent string   `json:"previewContent" form:"previewContent" binding:"required"`
 }
 
 type categories struct {
 	// two primary key can ensure that `A C` group be unique.
-	ArticleID  string
-	CategoryID string
+	ArticleID    string
+	CategoryName string
 }
 
 func init() {
-	err := createTables(db.DB)
+	err := createTables()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-// InsertArticle insert into db
-func InsertArticle(a Article) (err error) {
-	return insertArticle(db.DB, a)
+// GetArticle by id
+func GetArticle(id string) (err error) {
+	// ...
+	return nil
 }
 
-// db functions
-func createTables(db *sql.DB) (err error) {
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS articles ( 
-		ID varchar(100), Title varchar(100), Subtitle varchar(100), CreateDate varchar(100), Content TEXT, PreviewContent TEXT, PRIMARY KEY (ID) 
-	)`)
+// GetArticlePreviews from and to
+func GetArticlePreviews(page, perPage int) (atcs []Article, err error) {
+	selectAtcs := fmt.Sprintf("SELECT * FROM articles OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", (page-1)*perPage, perPage)
+	rows, err := db.DB.Query(selectAtcs)
 	if err != nil {
 		return
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS category 
-		( ID INT(11) NOT NULL AUTO_INCREMENT, Name varchar(100), PRIMARY KEY (ID) )`)
-	if err != nil {
-		return
+	atcs = []Article{}
+	if rows.Next() {
+		var a Article
+		err = rows.Scan(&a.ArticleID, &a.Title, &a.CreateDate, &a.Content, &a.PreviewContent)
+		if err != nil {
+			return
+		}
+		atcs = append(atcs, a)
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS categories 
-			( ArticleID varchar(100), CategoryID varchar(100), PRIMARY KEY (ArticleID, CategoryID) )`)
 	return
 }
 
-func insertArticle(db *sql.DB, a Article) (err error) {
-	tx, err := db.Begin()
+// InsertArticle insert into db
+func InsertArticle(a Article) (err error) {
+	tx, err := db.DB.Begin()
 	if err != nil {
 		return
 	}
 	defer tx.Rollback()
 
-	insertAtc := `INSERT INTO articles(ID, Title, Subtitle, CreateDate, Content, PreviewContent) 
-		  VALUES(?, ?, ?, ?, ?, ?)`
-	insertCtr := `INSERT INTO category(Name) VALUES(?)`
-	insertCts := `INSERT INTO categories(ArticleID, CategoryID) VALUES(?, ?)`
+	insertAtc := `INSERT INTO articles(ArticleID, Title, CreateDate, Content, PreviewContent) 
+		  VALUES(?, ?, ?, ?, ?)`
+	insertCts := `INSERT INTO categories(ArticleID, CategoryName) VALUES(?, ?)`
 
-	_, err = tx.Exec(insertAtc, a.ID, a.Title, a.Subtitle, a.CreateDate, a.Content, a.PreviewContent)
+	_, err = tx.Exec(insertAtc, a.ArticleID, a.Title, a.CreateDate, a.Content, a.PreviewContent)
 	if err != nil {
 		return
 	}
-	for cate := range a.Categories {
-		_, err = tx.Exec(insertCtr, cate)
-		if err != nil {
-			return
-		}
-		_, err = tx.Exec(insertCts, a.ID, cate)
+	for _, cate := range a.Categories {
+		_, err = tx.Exec(insertCts, a.ArticleID, cate)
 		if err != nil {
 			return
 		}
 	}
 	tx.Commit()
+	return
+}
+
+func createTables() (err error) {
+	_, err = db.DB.Exec(`CREATE TABLE IF NOT EXISTS articles 
+		( ID INT(11) NOT NULL AUTO_INCREMENT, ArticleID varchar(100), Title varchar(100), 
+		CreateDate varchar(100), Content TEXT, PreviewContent TEXT, PRIMARY KEY (ID) )`)
+	if err != nil {
+		return
+	}
+	_, err = db.DB.Exec(`CREATE TABLE IF NOT EXISTS categories
+			( ArticleID varchar(100), CategoryName varchar(100), PRIMARY KEY (ArticleID, CategoryName) )`)
 	return
 }
