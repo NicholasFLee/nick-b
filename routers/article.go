@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -49,11 +50,14 @@ func InsertArticleHandler(c *gin.Context) {
 	c.String(200, "upload success")
 }
 
-// GetArticleHandler `/article/:id`
+// GetArticleHandler `/*path` format should be article/id
 // GET
 func GetArticleHandler(c *gin.Context) {
 	fmt.Println("enter article handler")
-	id := c.Param("id")
+	path := c.Param("path")
+	arr := strings.Split(path, "/")
+	id := arr[len(arr)-1]
+
 	if id == "" {
 		c.String(401, "wrong parameter")
 		return
