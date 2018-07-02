@@ -10,5 +10,5 @@ func main() {
 
 	r := gin.Default()
 	routers.Routes(r)
-	r.Run()
+	r.Run(":1234")
 }
