@@ -13,11 +13,14 @@ func Routes(r *gin.Engine) {
 	r.POST("/article", InsertArticleHandler)
 	// fs := http.FileServer(http.Dir("/usr/share/nick/nick-f/dist/index.html"))
 	// http.Handle("/", fs)
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/*path", func(c *gin.Context) {
 		// /usr/share/nick/nick-f/dist/index.html
-		fmt.Println("////////")
-		c.File("/usr/share/nick/nick-f/dist/index.html")
-
+		path := c.Param("path")
+		if path == "" {
+			path = "index.html"
+		}
+		uri := fmt.Sprintf("/usr/share/nick/nick-f/dist/%s", path)
+		c.File(uri)
 	})
 
 }
