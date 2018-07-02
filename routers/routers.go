@@ -13,7 +13,7 @@ func Routes(r *gin.Engine) {
 	r.POST("/article", InsertArticleHandler)
 	// fs := http.FileServer(http.Dir("/usr/share/nick/nick-f/dist/index.html"))
 	// http.Handle("/", fs)
-	r.GET("/*path", func(c *gin.Context) {
+	r.GET("/blog/*path", func(c *gin.Context) {
 		// /usr/share/nick/nick-f/dist/index.html
 		path := c.Param("path")
 		if path == "" {
