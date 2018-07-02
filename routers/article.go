@@ -1,7 +1,10 @@
 package routers
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"strconv"
 	"time"
 
@@ -12,7 +15,6 @@ import (
 // InsertArticleHandler `/article`
 // POST: application/x-www-form-urlencoded
 // {
-// aticleID: string,
 // title: string
 // categories: [string]
 // content: string
@@ -21,16 +23,24 @@ import (
 func InsertArticleHandler(c *gin.Context) {
 	fmt.Println("enter insert handler")
 	var a article.Article
-	if c.ShouldBind(&a) != nil {
-		c.JSON(401, gin.H{
+	if err := c.ShouldBind(&a); err != nil {
+		fmt.Println(err)
+		c.JSON(400, gin.H{
 			"error": "wrong parameters",
 		})
 		return
 	}
-	// now get time
+	// set CreateDate
 	// RFC3339: "2006-01-02T15:04:05Z07:00"
 	a.CreateDate = time.Now().Format(time.RFC3339)
-	if article.InsertArticle(a) != nil {
+	// set ArticleID -> md5 title
+	h := md5.New()
+	io.WriteString(h, a.Title)
+	atcID := hex.EncodeToString(h.Sum(nil))
+	a.ArticleID = atcID
+	fmt.Println(atcID)
+	if err := article.InsertArticle(a); err != nil {
+		fmt.Println(err)
 		c.JSON(500, gin.H{
 			"error": "insert error",
 		})
@@ -50,6 +60,7 @@ func GetArticleHandler(c *gin.Context) {
 	}
 	atc, err := article.GetArticle(id)
 	if err != nil {
+		fmt.Println(err)
 		c.String(500, "get article failed")
 		return
 	}
