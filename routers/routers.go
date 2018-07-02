@@ -17,13 +17,14 @@ func Routes(r *gin.Engine) {
 	r.GET("/*path", func(c *gin.Context) {
 		// /usr/share/nick/nick-f/dist/index.html
 		path := c.Param("path")
+		fmt.Println(path)
 
-		if strings.HasPrefix(path, "article/") {
+		if strings.HasPrefix(path, "/article/") {
 			GetArticleHandler(c)
 			return
 		}
 
-		if strings.HasPrefix(path, "article") {
+		if strings.HasPrefix(path, "/article") {
 			GetArticlePreviewsHandler(c)
 			return
 		}
