@@ -10,7 +10,7 @@ import (
 
 // Article struct will saved into 3 tables
 type Article struct {
-	ArticleID  string   `json:"aticleID" form:"id" binding:"required"`
+	ArticleID  string   `json:"aticleID" form:"aticleID" binding:"required"`
 	Title      string   `json:"title" form:"title" binding:"required"`
 	CreateDate string   `json:"createDate" form:"createDate"`
 	Categories []string `json:"categories" form:"categories" binding:"required"`

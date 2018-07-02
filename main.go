@@ -1,9 +1,12 @@
 package main
 
 import (
-	"log"
+	"fmt"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/nicholasflee/nick-b/article"
+	"github.com/nicholasflee/nick-b/routers"
 )
 
 func main() {
@@ -13,9 +16,14 @@ func main() {
 		Content: "**article content", PreviewContent: "article preview content",
 	}
 
-	err := article.InsertArticle(a)
-	if err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println(a)
 
+	r := gin.Default()
+	routers.Routes(r)
+	// err := article.InsertArticle(a)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	r.Run()
 }
