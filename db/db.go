@@ -2,9 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // DB myblog db
@@ -16,6 +15,7 @@ func init() {
 		log.Fatal(err)
 	}
 	DB = db
+	fmt.Println("opened db")
 }
 
 // OpenDB a db

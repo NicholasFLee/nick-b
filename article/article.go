@@ -126,7 +126,7 @@ func InsertArticle(a Article) (err error) {
 			return
 		}
 	}
-	tx.Commit()
+	err = tx.Commit()
 	return
 }
 
