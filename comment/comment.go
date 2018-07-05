@@ -9,12 +9,20 @@ import (
 
 // Comment struct
 type Comment struct {
+	CommentID   string `json:"commentID" form:"commentID"`
+	ArticleID   string `json:"articleID" form:"articleID" binding:"required"`
+	Content     string `json:"content" form:"content" binding:"required"`
+	CreateDate  string `json:"createDate" form:"createDate"`
+	AuthorName  string `json:"authorName" from:"authorName" binding:"required"`
+	IPAddress   string
+	SubComments []SubComment `json:"subComments"`
+}
+
+// SubComment a property of Comment
+type SubComment struct {
 	CommentID  string `json:"commentID" form:"commentID"`
-	ArticleID  string `json:"articleID" form:"articleID" binding:"required"`
-	Content    string `json:"content" form:"content" binding:"required"`
+	AuthorName string `json:"authorName" form:"authorName"`
 	CreateDate string `json:"createDate" form:"createDate"`
-	AuthorName string `json:"authorName" from:"authorName" binding:"required"`
-	IPAddress  string
 }
 
 func init() {
@@ -26,8 +34,8 @@ func init() {
 // GetComments get comments by article id
 func GetComments(atcID string) (cmts []Comment, err error) {
 	selectCmts := fmt.Sprintf(`
-	SELECT * FROM comments
-	WHERE ArticleID='%s'
+		SELECT * FROM comments
+		WHERE ArticleID='%s'
 	`, atcID)
 	rows, err := db.DB.Query(selectCmts)
 	if err != nil {
@@ -46,14 +54,27 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 }
 
 // AddComment add a comment to a article
-func AddComment(cmt Comment) {
-
+func AddComment(cmt Comment) (err error) {
+	insertCmt := `
+		INSERT INTO comments
+		(CommentID, ArticleID, Content, CreateDate, AuthorName, IPAddress)
+		VALUES(?, ?, ?, ?, ?, ?)`
+	_, err = db.DB.Exec(insertCmt, cmt.CommentID, cmt.ArticleID, cmt.Content, cmt.CreateDate, cmt.AuthorName, cmt.IPAddress)
+	return
 }
 
 // AddSubComment add a sub-comment to a comment
-func AddSubComment(cmtID string) {
-
+func AddSubComment(scmt SubComment) (err error) {
+	insertScmt := `
+		INSERT INTO subcomments
+		(CommentID, AuthorName, CreateDate)
+		VALUES(?, ?, ?)
+	`
+	_, err = db.DB.Exec(insertScmt, scmt.CommentID, scmt.AuthorName, scmt.CreateDate)
+	return
 }
+
+// func GetSubComment needed?
 
 func createTables() (err error) {
 	_, err = db.DB.Exec(`
@@ -64,7 +85,20 @@ func createTables() (err error) {
 			Content TEXT,
 			CreateDate varchar(100),
 			AuthorName varchar(100),
-			IPAddress varchar(100)
+			IPAddress varchar(100),
+			PRIMARY KEY (ID)
+		)
+	`)
+	if err != nil {
+		return
+	}
+	_, err = db.DB.Exec(`
+		CREATE TABLE IF NOT EXISTS subcomments(
+			ID INT(11) NOT NULL AUTO_INCREMENT,
+			CommentID varchar(100),
+			AuthorName varchar(100),
+			CreateDate varchar(100),
+			PRIMARY KEY (ID)
 		)
 	`)
 	return

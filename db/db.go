@@ -10,7 +10,7 @@ import (
 var DB *sql.DB
 
 func init() {
-	db, err := OpenDB("myblog")
+	db, err := openDB("myblog")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func init() {
 }
 
 // OpenDB a db
-func OpenDB(name string) (db *sql.DB, err error) {
+func openDB(name string) (db *sql.DB, err error) {
 	db, err = sql.Open("mysql", "root:MySqL123456@tcp(127.0.0.1:3306)/")
 	if err != nil {
 		return
