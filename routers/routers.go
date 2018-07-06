@@ -6,8 +6,8 @@ import (
 
 // Routes the handlers
 func Routes(r *gin.Engine) {
-	r.GET("/article/:id", GetArticleHandler)
-	r.GET("/article", GetArticlePreviewsHandler)
-	r.POST("/article", InsertArticleHandler)
+	r.GET("/blog/article/:id", GetArticleHandler)
+	r.GET("/blog/article", GetArticlePreviewsHandler)
+	r.POST("/blog/article", InsertArticleHandler)
 	r.GET("/blog/*path", HTMLFileHandler)
 }
