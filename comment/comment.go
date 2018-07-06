@@ -31,7 +31,7 @@ func init() {
 	}
 }
 
-// GetComments get comments by article id
+// GetComments by article id
 func GetComments(atcID string) (cmts []Comment, err error) {
 	selectCmts := fmt.Sprintf(`
 		SELECT * FROM comments
@@ -53,7 +53,7 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 	return
 }
 
-// AddComment add a comment to a article
+// AddComment to a article
 func AddComment(cmt Comment) (err error) {
 	insertCmt := `
 		INSERT INTO comments
