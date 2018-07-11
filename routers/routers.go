@@ -8,7 +8,7 @@ import (
 func Routes(r *gin.Engine) {
 	r.GET("/blog/article/:id", GetArticleHandler)
 	r.GET("/blog/article", GetArticlePreviewsHandler)
-	r.POST("/blog/article", InsertArticleHandler)
+	r.POST("/blog/article", AddArticleHandler)
 
 	// serve front-end file
 	r.GET("/blog/", HTMLFileHandler)

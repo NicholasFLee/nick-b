@@ -4,33 +4,37 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	// mysql driver
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // DB myblog db
 var DB *sql.DB
 
 func init() {
-	db, err := openDB("myblog")
+	d, err := openDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	DB = db
+	err = d.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	DB = d
 	fmt.Println("opened db")
 }
 
-// OpenDB a db
-func openDB(name string) (db *sql.DB, err error) {
-	db, err = sql.Open("mysql", "root:MySqL123456@tcp(127.0.0.1:3306)/")
+// OpenDB db
+func openDB() (d *sql.DB, err error) {
+	d, err = sql.Open("mysql", "root:MySqL123456@tcp(127.0.0.1:3306)/")
 	if err != nil {
 		return
 	}
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+	_, err = d.Exec("CREATE DATABASE IF NOT EXISTS myblog")
 	if err != nil {
 		return
 	}
-	_, err = db.Exec("USE " + name)
-	if err != nil {
-		return
-	}
+	_, err = d.Exec("USE myblog")
+	fmt.Println(d)
 	return
 }
