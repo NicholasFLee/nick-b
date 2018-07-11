@@ -67,8 +67,8 @@ func GetArticlePreviews(page, perPage int) (atcs []Article, err error) {
 	if err != nil {
 		return
 	}
-	atcs = []Article{}
 	defer rows.Close()
+	atcs = []Article{}
 	for rows.Next() {
 		var a Article
 		err = rows.Scan(&a.ArticleID, &a.Title, &a.CreateDate, &a.PreviewContent)
@@ -82,22 +82,18 @@ func GetArticlePreviews(page, perPage int) (atcs []Article, err error) {
 		return
 	}
 	// now add categories
-	for _, a := range atcs {
+	for i := range atcs {
 		var ctgs []string
-		ctgs, err = gerCategoriesByArticleID(a.ArticleID)
+		ctgs, err = gerCategoriesByArticleID(atcs[i].ArticleID)
 		if err != nil {
 			return
 		}
-		a.Categories = ctgs
+		atcs[i].Categories = ctgs
 	}
 	return
 }
 
 func gerCategoriesByArticleID(id string) (ctgs []string, err error) {
-	_, err = db.DB.Exec("USE myblog")
-	if err != nil {
-		return
-	}
 	selectCtg := `
 		SELECT CategoryName
 		FROM categories 
@@ -108,8 +104,8 @@ func gerCategoriesByArticleID(id string) (ctgs []string, err error) {
 	if err != nil {
 		return
 	}
-	ctgs = []string{}
 	defer ctgRows.Close()
+	ctgs = []string{}
 	for ctgRows.Next() {
 		var s string
 		err = ctgRows.Scan(&s)

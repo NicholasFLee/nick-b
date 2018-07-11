@@ -38,10 +38,12 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 		FROM comments
 		WHERE ArticleID = ?
 	`
-	rows, err := db.DB.Query(selectCmts, atcID)
+	var rows *sql.Rows
+	rows, err = db.DB.Query(selectCmts, atcID)
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	cmts = []Comment{}
 	for rows.Next() {
 		var cmt Comment
@@ -49,6 +51,13 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 		if err != nil {
 			return
 		}
+		cmts = append(cmts, cmt)
+	}
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+	for _, cmt := range cmts {
 		// get sub-comments of this comment
 		var scmts []SubComment
 		scmts, err = getSubComments(cmt.CommentID)
@@ -56,7 +65,6 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 			return
 		}
 		cmt.SubComments = scmts
-		cmts = append(cmts, cmt)
 	}
 	return
 }
@@ -72,6 +80,7 @@ func getSubComments(cmtID string) (scmts []SubComment, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	scmts = []SubComment{}
 	for rows.Next() {
 		scmt := SubComment{}
@@ -81,6 +90,7 @@ func getSubComments(cmtID string) (scmts []SubComment, err error) {
 		}
 		scmts = append(scmts, scmt)
 	}
+	err = rows.Err()
 	return
 }
 
