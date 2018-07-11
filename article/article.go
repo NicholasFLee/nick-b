@@ -167,7 +167,7 @@ func createTables() (err error) {
 		CREATE TABLE IF NOT EXISTS categories( 
 			ArticleID varchar(100), 
 			CategoryName varchar(100), 
-			PRIMARY KEY (ArticleID, CategoryName) 
+			PRIMARY KEY (ArticleID, CategoryName)
 		)
 	`)
 	return

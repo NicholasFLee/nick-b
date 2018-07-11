@@ -10,6 +10,9 @@ func Routes(r *gin.Engine) {
 	r.GET("/blog/article", GetArticlePreviewsHandler)
 	r.POST("/blog/article", AddArticleHandler)
 
+	r.POST("/blog/comment", AddCommentHandler)
+	r.POST("/blog/comment/subcomment", AddSubCommentHandler)
+
 	// serve front-end file
 	r.GET("/blog/", HTMLFileHandler)
 	r.GET("/blog/js/*path", HTMLFileHandler)

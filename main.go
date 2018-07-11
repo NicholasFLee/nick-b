@@ -6,7 +6,12 @@ import (
 )
 
 func main() {
+	testFeature()
 	r := gin.Default()
 	routers.Routes(r)
 	r.Run(":1234")
+}
+
+func testFeature() {
+
 }

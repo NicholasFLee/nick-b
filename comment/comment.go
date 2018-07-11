@@ -13,7 +13,7 @@ type Comment struct {
 	// ArticleID   string `json:"articleID" form:"articleID" binding:"required"`
 	Content     string `json:"content" form:"content" binding:"required"`
 	CreateDate  string `json:"createDate" form:"createDate"`
-	AuthorName  string `json:"authorName" from:"authorName" binding:"required"`
+	AuthorName  string `json:"authorName" form:"authorName" binding:"required"`
 	IPAddress   string
 	SubComments []SubComment `json:"subComments"`
 }
@@ -57,14 +57,14 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 	if err != nil {
 		return
 	}
-	for _, cmt := range cmts {
+	for i := range cmts {
 		// get sub-comments of this comment
 		var scmts []SubComment
-		scmts, err = getSubComments(cmt.CommentID)
+		scmts, err = getSubComments(cmts[i].CommentID)
 		if err != nil {
 			return
 		}
-		cmt.SubComments = scmts
+		cmts[i].SubComments = scmts
 	}
 	return
 }
