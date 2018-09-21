@@ -69,6 +69,7 @@ func GetComments(atcID string) (cmts []Comment, err error) {
 	return
 }
 
+// Add sub comments to a comment
 func getSubComments(cmtID string) (scmts []SubComment, err error) {
 	selectScmts := `
 		SELECT AuthorName, CreateDate, Content 
@@ -115,6 +116,7 @@ func AddSubComment(cmtID string, scmt SubComment) (err error) {
 	return
 }
 
+// create comments tables
 func createTables() (err error) {
 	_, err = db.DB.Exec(`
 		CREATE TABLE IF NOT EXISTS comments(
